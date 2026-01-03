@@ -121,5 +121,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Apply accessibility-controlled typographic variables */
+    font-size: var(--custom-font-size, 100%);
+    line-height: var(--custom-line-height, 1.6);
+    letter-spacing: var(--custom-letter-spacing, 0);
+    /* Ensure transitions are smooth when user changes settings */
+    transition: font-size 160ms ease, line-height 160ms ease, letter-spacing 160ms ease;
   }
 }
+
+/* Accessibility font-family helper classes (toggled on <html> by AccessibilityProvider) */
+.font-dyslexic { font-family: 'OpenDyslexic', var(--font-sans) !important; }
+.font-comic { font-family: 'Comic Sans MS', var(--font-sans) !important; }
+.font-lexend { font-family: 'Lexend', var(--font-sans) !important; }
+
+/* Small helper class included in layout for dyslexic-specific spacing tweaks */
+.dyslexic-spacing { letter-spacing: 0.04em; }

@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect } from "react"
 type ColorBlindMode = "none" | "protanopia" | "deuteranopia" | "tritanopia"
 
 interface AccessibilitySettings {
-  fontFamily: "default" | "dyslexic" | "comic-sans" | "lexend"
+  fontFamily: "default" | "dyslexic" | "comic" | "lexend"
   fontSize: number
   lineHeight: number
   letterSpacing: number
@@ -52,14 +52,31 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (typeof document !== "undefined") {
       const root = document.documentElement
-      // Clean up all font classes before applying new ones
-      root.classList.remove("protanopia", "deuteranopia", "tritanopia", "font-dyslexic", "font-comic", "font-lexend")
+      const body = document.body
+      // Clean up all font & color classes on both html and body before applying new ones
+      const clsToRemove = [
+        "protanopia",
+        "deuteranopia",
+        "tritanopia",
+        "font-dyslexic",
+        "font-comic",
+        "font-lexend",
+      ]
+      root.classList.remove(...clsToRemove)
+      body.classList.remove(...clsToRemove)
 
-      if (colorBlindMode !== "none") root.classList.add(colorBlindMode)
-      if (settings.fontFamily !== "default") {
-        root.classList.add(`font-${settings.fontFamily}`)
+      if (colorBlindMode !== "none") {
+        root.classList.add(colorBlindMode)
+        body.classList.add(colorBlindMode)
       }
 
+      // Apply font-family classes to <body> so they take precedence over any
+      // layout-level default (the layout previously applied `font-sans` on body).
+      if (settings.fontFamily !== "default") {
+        body.classList.add(`font-${settings.fontFamily}`)
+      }
+
+      // Keep typographic variables on :root so they cascade everywhere
       root.style.setProperty("--custom-font-size", `${settings.fontSize}%`)
       root.style.setProperty("--custom-line-height", settings.lineHeight.toString())
       root.style.setProperty("--custom-letter-spacing", `${settings.letterSpacing}em`)

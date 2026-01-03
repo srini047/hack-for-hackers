@@ -107,7 +107,6 @@ export function Navbar() {
             size="lg"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="rounded-full h-12 w-12 md:px-6 md:w-auto"
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           >
             <Sun className="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

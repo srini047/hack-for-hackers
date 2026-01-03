@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,32 +9,33 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import { Home, Upload, HelpCircle, Sun, Moon } from "lucide-react"
-import { useTheme } from "next-themes"
-import { speak } from "@/lib/audio-service"
+} from "@/components/ui/command";
+import { Home, Upload, HelpCircle, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { speak } from "@/lib/audio-service";
 
 export function CommandPalette() {
-  const [open, setOpen] = React.useState(false)
-  const router = useRouter()
-  const { setTheme } = useTheme()
+  const [open, setOpen] = React.useState(false);
+  const router = useRouter();
+  const { setTheme } = useTheme();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpen((open) => !open)
-        if (!open) speak("Command palette opened. Type to find pages or actions.")
+        e.preventDefault();
+        setOpen((open) => !open);
+        if (!open)
+          speak("Command palette opened. Type to find pages or actions.");
       }
-    }
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [open])
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, [open]);
 
   const runCommand = (command: () => void) => {
-    setOpen(false)
-    command()
-  }
+    setOpen(false);
+    command();
+  };
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
@@ -45,8 +46,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Navigating home")
-                router.push("/")
+                speak("Navigating home");
+                router.push("/");
               })
             }
           >
@@ -56,8 +57,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Navigating to submission")
-                router.push("/submit")
+                speak("Navigating to submission");
+                router.push("/submit");
               })
             }
           >
@@ -67,8 +68,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Navigating to help")
-                router.push("/help")
+                speak("Navigating to help");
+                router.push("/help");
               })
             }
           >
@@ -78,8 +79,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Navigating feedback")
-                router.push("/feedback")
+                speak("Navigating feedback");
+                router.push("/feedback");
               })
             }
           >
@@ -91,8 +92,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Light mode activated")
-                setTheme("light")
+                speak("Light mode activated");
+                setTheme("light");
               })
             }
           >
@@ -102,8 +103,8 @@ export function CommandPalette() {
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                speak("Dark mode activated")
-                setTheme("dark")
+                speak("Dark mode activated");
+                setTheme("dark");
               })
             }
           >
@@ -113,5 +114,5 @@ export function CommandPalette() {
         </CommandGroup>
       </CommandList>
     </CommandDialog>
-  )
+  );
 }
