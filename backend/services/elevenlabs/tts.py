@@ -37,7 +37,7 @@ class TextToSpeech:
             # Generate audio using the native SDK
             audio_generator = eleven_client.text_to_speech.convert(
                 text=description_text,
-                voice=voice_id,
+                voice_id=voice_id,
                 model="eleven_multilingual_v2"
             )
             

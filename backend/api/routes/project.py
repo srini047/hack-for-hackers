@@ -1,4 +1,4 @@
-"""Project management endpoints."""
+"""Project management endpoints with synchronous processing."""
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
@@ -16,7 +16,6 @@ router = APIRouter(prefix="/api/project", tags=["Project"])
 
 @router.post("/create")
 async def create_project(
-    background_tasks: BackgroundTasks,
     video: UploadFile = File(...),
     project_repo: ProjectRepository = Depends(get_project_repository),
     file_repo: FileRepository = Depends(get_file_repository),
@@ -24,21 +23,24 @@ async def create_project(
     """
     Create a new project by uploading a demo video.
 
+    **THIS IS SYNCHRONOUS** - It waits for all processing to complete
+    before returning the response with all generated content.
+
     This endpoint:
-    1. Validates the video file
-    2. Stores it in GridFS
-    3. Creates a project record
-    4. Starts background processing
+    1. Validates and uploads the video file
+    2. Processes the video (transcription, analysis, README generation, etc.)
+    3. Returns complete project with all generated content
 
     Args:
         video: Video file upload
-        background_tasks: FastAPI background tasks
         project_repo: Project repository
         file_repo: File repository
 
     Returns:
-        Project information with job_id
+        Complete project with all generated content
     """
+    temp_video_path = None
+
     try:
         # Validate file
         content = await video.read()
@@ -76,6 +78,117 @@ async def create_project(
         }
 
         project = project_repo.create_project(video_info)
+        job_id = project["job_id"]
+
+        # Process video SYNCHRONOUSLY (this blocks until complete)
+        processor = VideoProcessor(project_repo, file_repo)
+        processor.process_video(job_id, temp_video_path)
+
+        # Clean up temp file
+        cleanup_temp_file(temp_video_path)
+
+        # Get the completed project with all generated content
+        completed_project = project_repo.get_by_job_id(job_id)
+
+        # Return complete response with all generated content
+        return {
+            "job_id": completed_project["job_id"],
+            "status": completed_project["status"],
+            "created_at": completed_project["created_at"],
+            "updated_at": completed_project["updated_at"],
+            # Video information
+            "video": completed_project["video"],
+            # All generated content
+            "content": {
+                "readme": completed_project["content"].get("readme"),
+                "subtitles": {
+                    "transcript": completed_project["content"]
+                    .get("subtitles", {})
+                    .get("transcript"),
+                    "srt_file_id": completed_project["content"]
+                    .get("subtitles", {})
+                    .get("srt_file_id"),
+                    "vtt_file_id": completed_project["content"]
+                    .get("subtitles", {})
+                    .get("vtt_file_id"),
+                },
+                "audio_description": completed_project["content"].get(
+                    "audio_description"
+                ),
+                "screenshots": completed_project["content"].get("screenshots", []),
+            },
+            # Submission information
+            "submission": completed_project["submission"],
+            # Processing information
+            "processing": completed_project["processing"],
+            # Direct download links
+            "download_links": {
+                "readme": f"/api/project/{job_id}/readme",
+                "srt_subtitles": f"/api/project/{job_id}/subtitles/srt",
+                "vtt_subtitles": f"/api/project/{job_id}/subtitles/vtt",
+                "audio_description": f"/api/project/{job_id}/audio-description",
+                "complete_package": f"/api/project/{job_id}/download-package",
+            },
+        }
+
+    except Exception as e:
+        # Clean up on error
+        if temp_video_path:
+            cleanup_temp_file(temp_video_path)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/create-async")
+async def create_project_async(
+    background_tasks: BackgroundTasks,
+    video: UploadFile = File(...),
+    project_repo: ProjectRepository = Depends(get_project_repository),
+    file_repo: FileRepository = Depends(get_file_repository),
+):
+    """
+    Create a new project with ASYNC processing (original behavior).
+
+    Use this if you want to start processing in background and poll for status.
+
+    Returns immediately with job_id to track progress.
+    """
+    try:
+        # Validate file
+        content = await video.read()
+        file_size = len(content)
+        if not video.filename:
+            raise HTTPException(
+                status_code=400, detail="Uploaded file must have a filename"
+            )
+
+        validate_video_file(video.filename, file_size)
+
+        # Save video to temporary location
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+        temp_file.write(content)
+        temp_file.close()
+        temp_video_path = temp_file.name
+
+        # Get video duration
+        duration = get_video_duration(temp_video_path)
+
+        # Save video to GridFS
+        video_id = file_repo.save_video(
+            file_data=content,
+            filename=video.filename,
+            content_type=video.content_type or "video/mp4",
+        )
+
+        # Create project record
+        video_info = {
+            "file_id": video_id,
+            "filename": video.filename,
+            "size": file_size,
+            "duration": duration,
+            "format": video.filename.split(".")[-1].lower(),
+        }
+
+        project = project_repo.create_project(video_info)
 
         # Start background processing
         processor = VideoProcessor(project_repo, file_repo)
@@ -84,16 +197,11 @@ async def create_project(
         )
         background_tasks.add_task(cleanup_temp_file, temp_video_path)
 
-        # Return project response
         return {
             "job_id": project["job_id"],
-            "status": project["status"],
-            "created_at": project["created_at"],
-            "updated_at": project["updated_at"],
-            "video": project["video"],
-            "content": project["content"],
-            "submission": project["submission"],
-            "processing": project["processing"],
+            "status": "pending",
+            "message": "Processing started in background. Poll /status endpoint for updates.",
+            "status_url": f"/api/project/{project['job_id']}/status",
         }
 
     except Exception as e:
@@ -123,14 +231,17 @@ async def get_project_status(
     processing = project.get("processing", {})
     steps = processing.get("steps", {})
 
+    # Count completed steps
+    completed_steps = sum(1 for s in steps.values() if s == "completed")
+    total_steps = len(steps)
+    percentage = int((completed_steps / total_steps) * 100) if total_steps > 0 else 0
+
     # Calculate progress message
     if status == "completed":
         message = "Processing completed successfully"
     elif status == "failed":
         message = f"Processing failed: {processing.get('error')}"
     elif status == "processing":
-        completed_steps = sum(1 for s in steps.values() if s == "completed")
-        total_steps = len(steps)
         message = f"Processing... ({completed_steps}/{total_steps} steps completed)"
     else:
         message = "Waiting to start processing"
@@ -138,7 +249,12 @@ async def get_project_status(
     return {
         "job_id": project["job_id"],
         "status": status,
-        "progress": steps,
+        "progress": {
+            "steps": steps,
+            "completed": completed_steps,
+            "total": total_steps,
+            "percentage": percentage,
+        },
         "message": message,
     }
 
@@ -227,7 +343,6 @@ async def get_subtitles(
     content = project.get("content", {})
     subtitles = content.get("subtitles", {})
 
-    # Get file ID based on format
     file_id = subtitles.get(f"{format}_file_id")
 
     if not file_id:
@@ -235,7 +350,6 @@ async def get_subtitles(
             status_code=404, detail=f"{format.upper()} subtitle file not found"
         )
 
-    # Get file from GridFS
     file_data = file_repo.get_file(file_id)
 
     if not file_data:
@@ -243,7 +357,6 @@ async def get_subtitles(
             status_code=404, detail="Subtitle file not found in storage"
         )
 
-    # Return as downloadable file
     return StreamingResponse(
         io.BytesIO(file_data),
         media_type=f"text/{format}",
@@ -281,13 +394,11 @@ async def get_audio_description(
     if not file_id:
         raise HTTPException(status_code=404, detail="Audio description file not found")
 
-    # Get file from GridFS
     file_data = file_repo.get_file(file_id)
 
     if not file_data:
         raise HTTPException(status_code=404, detail="Audio file not found in storage")
 
-    # Return as downloadable file
     return StreamingResponse(
         io.BytesIO(file_data),
         media_type="audio/mpeg",
@@ -319,11 +430,9 @@ async def update_submission_info(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Update submission info
     if update_data:
         project_repo.update_submission(job_id, update_data)
 
-    # Get updated project
     updated_project = project_repo.get_by_job_id(job_id)
 
     return updated_project
@@ -373,14 +482,12 @@ async def delete_project(
         if screenshot.get("file_id"):
             file_ids_to_delete.append(screenshot["file_id"])
 
-    # Delete files
     for file_id in file_ids_to_delete:
         try:
             file_repo.delete_file(file_id)
         except Exception as e:
             print(f"Warning: Could not delete file {file_id}: {e}")
 
-    # Delete project record
     deleted = project_repo.delete_project(job_id)
 
     if not deleted:
