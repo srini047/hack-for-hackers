@@ -12,7 +12,7 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6 flex flex-col items-center text-center space-y-6 md:space-y-8">
           <div className="inline-flex items-center rounded-full border px-3 md:px-4 py-1 md:py-1.5 text-base md:text-lg font-medium bg-secondary/50 text-primary animate-in fade-in slide-in-from-top-4">
             <Sparkles className="mr-2 h-4 w-5" />
-            <span className="font-semibold">AI-Powered Video-to-Submission Pipeline</span>
+            <span className="font-semibold">AI-Powered Project Submission Assistant</span>
           </div>
           <h1 id="hero-title" className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight max-w-5xl leading-[1.1]">
             Hackathon Submissions, Zero Barriers.
