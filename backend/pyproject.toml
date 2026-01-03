@@ -1,0 +1,28 @@
+[project]
+name = "access-submit"
+version = "0.1.0"
+description = "Accessible project submission requriements generator for all"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.9",
+    "pymongo>=4.6.1",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.1",
+    "google-genai>=1.56.0",
+    "elevenlabs>=1.0.0",
+    "opencv-python>=4.9.0.80",
+    "moviepy>=1.0.3",
+    "pydub>=0.25.1",
+    "openai-whisper>=20250625",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "httpx>=0.26.0",
+    "black>=24.1.0",
+    "ruff>=0.2.0",
+]
