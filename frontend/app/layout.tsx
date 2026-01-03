@@ -3,9 +3,12 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AccessibilityProvider } from "@/contexts/accessibility-context"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Assistant } from "@/components/assistant"
+import { ScreenReaderProvider } from "@/components/screen-reader"
+import { CommandPalette } from "@/components/command-palette"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -52,10 +55,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans dyslexic-spacing min-h-screen flex flex-col`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <Assistant />
+          <AccessibilityProvider>
+            <ScreenReaderProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <Assistant />
+              <CommandPalette />
+            </ScreenReaderProvider>
+          </AccessibilityProvider>
         </ThemeProvider>
         <Analytics />
       </body>

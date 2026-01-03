@@ -3,15 +3,21 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, Video, FileVideo } from "lucide-react"
+import { Upload, Video, FileVideo, AlertCircle, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { speak } from "@/lib/audio-service"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface UploadStepProps {
   onUpload: (file: File) => void
 }
 
+const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB in bytes
+
 export function UploadStep({ onUpload }: UploadStepProps) {
   const [isDragging, setIsDragging] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const [success, setSuccess] = React.useState<string | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -23,19 +29,43 @@ export function UploadStep({ onUpload }: UploadStepProps) {
     setIsDragging(false)
   }
 
+  const validateAndUploadFile = (file: File) => {
+    setError(null)
+    setSuccess(null)
+
+    if (!file.type.startsWith("video/")) {
+      const errorMsg = "Please upload a valid video file (MP4, MOV, or WebM)"
+      setError(errorMsg)
+      speak(errorMsg)
+      return
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      const errorMsg = `File size exceeds 100MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`
+      setError(errorMsg)
+      speak(errorMsg)
+      return
+    }
+
+    const successMsg = `Video uploaded successfully: ${file.name}`
+    setSuccess(successMsg)
+    speak(successMsg)
+    onUpload(file)
+  }
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
     const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith("video/")) {
-      onUpload(file)
+    if (file) {
+      validateAndUploadFile(file)
     }
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      onUpload(file)
+      validateAndUploadFile(file)
     }
   }
 
@@ -48,23 +78,45 @@ export function UploadStep({ onUpload }: UploadStepProps) {
         </p>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="animate-in slide-in-from-top-2">
+          <AlertCircle className="h-6 w-6" />
+          <AlertTitle className="text-xl font-bold">Upload Error</AlertTitle>
+          <AlertDescription className="text-lg">{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {success && (
+        <Alert className="border-primary bg-primary/10 animate-in slide-in-from-top-2">
+          <CheckCircle className="h-6 w-6 text-primary" />
+          <AlertTitle className="text-xl font-bold text-primary">Upload Successful</AlertTitle>
+          <AlertDescription className="text-lg text-foreground">{success}</AlertDescription>
+        </Alert>
+      )}
+
       <Card
         className={cn(
           "relative border-4 border-dashed rounded-[40px] p-12 md:p-24 transition-all duration-300",
           isDragging ? "border-primary bg-primary/5 scale-[0.99]" : "border-muted hover:border-primary/50",
+          error && "border-destructive",
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         <CardContent className="flex flex-col items-center justify-center space-y-8 p-0">
-          <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+          <div
+            className={cn(
+              "h-24 w-24 rounded-full flex items-center justify-center transition-colors",
+              error ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary",
+            )}
+          >
             <Video className="h-12 w-12" />
           </div>
 
           <div className="text-center space-y-4">
             <h2 className="text-3xl font-bold">Drag and drop your video</h2>
-            <p className="text-xl text-muted-foreground">MP4, MOV or WebM (Max 500MB)</p>
+            <p className="text-xl text-muted-foreground">MP4, MOV or WebM (Max 100MB)</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">

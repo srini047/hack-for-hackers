@@ -1,4 +1,4 @@
-import { Accessibility, Mail, Phone, Info } from "lucide-react"
+import { Accessibility, Mail, Info, Eye } from "lucide-react"
 import Link from "next/link"
 
 export function Footer() {
@@ -31,38 +31,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/feedback" className="hover:underline underline-offset-4">
+                  Share Feedback
+                </Link>
+              </li>
+              <li>
                 <Link href="/help" className="hover:underline underline-offset-4">
                   Help Center
                 </Link>
               </li>
             </ul>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold">Support</h3>
-            <ul className="space-y-3 text-lg">
-              <li className="flex items-center gap-2">
-                <Mail className="h-5 w-5" /> support@accesssubmit.org
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-5 w-5" /> +1 (800) ACCESS-0
-              </li>
-              <li className="flex items-center gap-2">
-                <Info className="h-5 w-5" /> Accessibility Policy
-              </li>
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold">Stay Updated</h3>
-            <p className="text-muted-foreground text-lg">Get the latest on hackathons and tools.</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-lg ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
           </div>
         </div>
         <div className="mt-12 pt-8 border-t text-center text-muted-foreground text-lg">

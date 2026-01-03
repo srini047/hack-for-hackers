@@ -1,5 +1,5 @@
 # Use Python 3.11 slim image
-FROM python:3.11-slim
+FROM python:3.12-slim-bookworm
 
 # Set working directory
 WORKDIR /app
@@ -30,7 +30,7 @@ RUN uv pip install --system --no-cache -r pyproject.toml
 COPY . .
 
 # Create directory for temporary files
-RUN mkdir -p /tmp/video_processing
+# RUN mkdir -p /tmp/video_processing
 
 # Expose port
 EXPOSE 8000

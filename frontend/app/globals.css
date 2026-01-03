@@ -88,6 +88,48 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Color blindness mode palettes */
+/* Protanopia (red-blind) - replace reds with yellows/browns */
+.protanopia {
+  --primary: oklch(0.45 0.15 85);
+  --destructive: oklch(0.55 0.18 60);
+  --chart-1: oklch(0.65 0.15 85);
+  --chart-5: oklch(0.75 0.12 60);
+}
+
+.dark.protanopia {
+  --primary: oklch(0.75 0.15 85);
+  --destructive: oklch(0.65 0.18 60);
+  --chart-1: oklch(0.75 0.15 85);
+  --chart-5: oklch(0.75 0.12 60);
+}
+
+/* Deuteranopia (green-blind) - replace greens with blues/yellows */
+.deuteranopia {
+  --primary: oklch(0.45 0.18 240);
+  --chart-2: oklch(0.6 0.15 85);
+  --chart-4: oklch(0.65 0.18 240);
+}
+
+.dark.deuteranopia {
+  --primary: oklch(0.75 0.18 240);
+  --chart-2: oklch(0.7 0.15 85);
+  --chart-4: oklch(0.75 0.18 240);
+}
+
+/* Tritanopia (blue-blind) - replace blues with pinks/teals */
+.tritanopia {
+  --primary: oklch(0.5 0.2 330);
+  --chart-1: oklch(0.65 0.18 330);
+  --chart-3: oklch(0.6 0.15 180);
+}
+
+.dark.tritanopia {
+  --primary: oklch(0.75 0.2 330);
+  --chart-1: oklch(0.75 0.18 330);
+  --chart-3: oklch(0.7 0.15 180);
+}
+
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
@@ -135,8 +177,11 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    line-height: var(--font-line-height);
-    letter-spacing: var(--font-letter-spacing);
+    /* ensured zoom friendly responsive units for customizations */
+    line-height: var(--custom-line-height, var(--font-line-height));
+    letter-spacing: var(--custom-letter-spacing, var(--font-letter-spacing));
+    font-size: clamp(0.8rem, var(--custom-font-size, 100%), 2rem);
+    transition: font-size 0.2s ease, line-height 0.2s ease, letter-spacing 0.2s ease;
   }
 
   /* Dyslexia friendly focus states */
@@ -154,9 +199,40 @@
   }
 }
 
+/* Added color blindness filter for global accessibility */
+.color-blind-mode {
+  filter: saturate(0) contrast(1.2);
+}
+
 /* Custom Accessibility Classes */
 .dyslexic-spacing {
   letter-spacing: 0.05em;
   word-spacing: 0.1em;
   line-height: 1.6;
+}
+
+/* Custom Dyslexic Font Support */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("https://cdn.jsdelivr.net/npm/open-dyslexic@latest/OpenDyslexic-Regular.otf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-dyslexic {
+  font-family: "OpenDyslexic", var(--font-sans) !important;
+}
+
+/* added additional dyslexic-friendly font face imports */
+@font-face {
+  font-family: "Lexend";
+  src: url("https://fonts.gstatic.com/s/lexend/v19/cyXf9br6jpXF2k55zQ.woff2") format("woff2");
+}
+
+.font-lexend {
+  font-family: "Lexend", var(--font-sans) !important;
+}
+
+.font-comic {
+  font-family: "Comic Sans MS", "Comic Sans", cursive !important;
 }
