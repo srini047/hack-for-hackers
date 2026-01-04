@@ -11,6 +11,7 @@ interface ProjectData {
   job_id: string;
   title: string;
   tagline: string;
+  readme: string;
   problem_statement: string;
   solution: string;
   tech_stack: string[];

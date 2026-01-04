@@ -30,12 +30,16 @@ export function ProcessingStep({
   const [progress, setProgress] = React.useState(0);
   const [status, setStatus] = React.useState("Uploading video...");
   const [insights, setInsights] = React.useState<string[]>([]);
+  const hasStartedRef = React.useRef(false);
 
   React.useEffect(() => {
     if (!videoFile) {
       onError("No video file provided");
       return;
     }
+
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
 
     const uploadVideo = async () => {
       try {
@@ -54,13 +58,12 @@ export function ProcessingStep({
         });
 
         if (!response.ok) {
-          setStatus(`Upload failed: ${response.statusText}`);
           throw new Error(`Upload failed: ${response.statusText}`);
         }
 
         setProgress(50);
         setStatus("Analyzing video content...");
-        setInsights((prev) => [...prev, "✅ Video uploaded successfully"]);
+        setInsights(["✅ Video uploaded successfully"]);
 
         const projectData: ProjectData = await response.json();
 
@@ -68,9 +71,7 @@ export function ProcessingStep({
         setStatus("Extracting project features...");
         setInsights((prev) => [
           ...prev,
-          `✅ Detected ${
-            projectData.features?.length || 0
-          } features in the project`,
+          `✅ Detected ${projectData.features?.length ?? 0} features`,
         ]);
 
         setProgress(90);
@@ -89,12 +90,11 @@ export function ProcessingStep({
           "✅ Generated submission details from video",
         ]);
 
-        // Delay before moving to review step
         setTimeout(() => {
           onComplete(projectData);
         }, 1000);
       } catch (err) {
-        console.error("[v0] Processing error:", err);
+        console.error("[ProcessingStep] error:", err);
         onError(err instanceof Error ? err.message : "Failed to process video");
       }
     };

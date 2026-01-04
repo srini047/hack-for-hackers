@@ -17,6 +17,7 @@ dependencies = [
     "moviepy>=1.0.3",
     "pydub>=0.25.1",
     "openai-whisper>=20250625",
+    "cohere>=5.20.1",
 ]
 
 [tool.uv]
