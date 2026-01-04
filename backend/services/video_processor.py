@@ -5,7 +5,7 @@ import os
 from db.repositories.file_repository import FileRepository
 from db.repositories.project_repository import ProjectRepository
 from services.gemini.vision_analyzer import VisionAnalyzer
-from services.gemini.readme_generator import ReadmeGenerator
+from services.cohere.readme_generator import ReadmeGenerator
 from services.elevenlabs.stt import SpeechToText
 from services.elevenlabs.tts import TextToSpeech
 

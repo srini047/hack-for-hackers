@@ -1,6 +1,5 @@
 export async function speak(text: string, voiceId?: string) {
   try {
-    return;
     const response = await fetch("/api/audio", {
       method: "POST",
       body: JSON.stringify({ text, voiceId }),

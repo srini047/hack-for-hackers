@@ -36,6 +36,7 @@ interface ReviewStepProps {
     job_id: string;
     title: string;
     tagline: string;
+    readme: string;
     problem_statement: string;
     solution: string;
     tech_stack: string[];
@@ -46,23 +47,24 @@ interface ReviewStepProps {
 
 export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
   const [formData, setFormData] = React.useState({
-    title: initialData?.title || "EcoTrack: Community Waste Management",
-    tagline: initialData?.tagline || "An accessible demo project",
+    title: initialData?.title || "LHD Build",
+    tagline: initialData?.tagline || "New Year Countdown",
+    readme:
+      initialData?.readme || "## What it does\nCalculates the difference between the present time and the new year and displays the result as a countdown\n## How I built it\n- HTML\n- CSS\n- JS\n ## What we learnedLearnt to work in front-end and usage of JS to improve dynamicity.\n## What's next for New Year Countdown- Responsive\n- Added sound\n-A code that runs to greet the user every year through their mails.",
     problem:
       initialData?.problem_statement ||
-      "Community members struggle to coordinate local cleanup efforts and track impact in real-time. Existing tools are too complex or not accessible enough for everyone to join.",
+      "The objective of this project is to design and implement a real-time New Year Countdown application that dynamically calculates and displays the remaining time until the New Year, using front-end web technologies to improve user interaction and responsiveness.",
     solution:
       initialData?.solution ||
-      "EcoTrack provides a voice-controlled interface for reporting waste and organizing cleanup events. It uses real-time mapping to show immediate community impact.",
+      "Calculates the difference between the present time and the new year and displays the result as a countdown.",
     techStack: initialData?.tech_stack || [
-      "Next.js",
-      "Elevenlabs",
-      "MongoDB",
-      "Google Gemini",
+      "HTML",
+      "CSS",
+      "JS",
     ],
-    team: ["Sriniketh", "AI Companion"],
+    team: [""],
     futureScope:
-      "Integration with local municipality systems for official waste pickup scheduling.",
+      "- Improve responsiveness to support multiple screen sizes and devices\n- Integrate sound effects to enhance user experience\n- Implement an automated email greeting system to send New Year wishes to users annually",
   });
 
   const [isSaved, setIsSaved] = React.useState(false);
@@ -114,6 +116,7 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
       submission: {
         title: formData.title,
         tagline: formData.tagline,
+        readme: formData.readme,
         problem_statement: formData.problem,
         solution: formData.solution,
         tech_stack: formData.techStack,
@@ -233,23 +236,23 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                 {isSaved ? "Saved" : "Save Progress"}
               </Button>
 
-                      {/* Copy Content as JSON */}
-                      <Button
-                        size="lg"
-                        onClick={handleCopy}
-                        className="rounded-full h-12 px-8 font-bold"
-                      >
-                        {isCopied ? (
-                          <>
-                            <CopyCheck className="mr-2 h-5 w-5" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            Copy <Copy className="ml-2 h-5 w-5" />
-                          </>
-                        )}
-                      </Button>
+              {/* Copy Content as JSON */}
+              <Button
+                size="lg"
+                onClick={handleCopy}
+                className="rounded-full h-12 px-8 font-bold"
+              >
+                {isCopied ? (
+                  <>
+                    <CopyCheck className="mr-2 h-5 w-5" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    Copy <Copy className="ml-2 h-5 w-5" />
+                  </>
+                )}
+              </Button>
             </div>
           </CardHeader>
 
@@ -309,6 +312,31 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                     />
                   </div>
 
+                  <TabsContent
+                    value="readme"
+                    className="mt-0 h-full animate-in fade-in slide-in-from-right-4"
+                  >
+                    <div className="flex flex-col h-full p-8 gap-4">
+                      <Label className="text-xl font-bold">
+                        README (Markdown)
+                      </Label>
+
+                      <Textarea
+                        value={formData.readme}
+                        onChange={(e) =>
+                          setFormData({ ...formData, readme: e.target.value })
+                        }
+                        className="flex-1 resize-none text-lg rounded-2xl border-2 leading-relaxed overflow-y-auto"
+                        placeholder="# Project Title\nDescribe your project here..."
+                      />
+
+                      <p className="text-sm text-muted-foreground shrink-0">
+                        Supports GitHub-flavored Markdown. This will be used as
+                        your project README.
+                      </p>
+                    </div>
+                  </TabsContent>
+
                   <div className="space-y-4">
                     <Label className="text-xl font-bold">Tech Stack</Label>
                     <div className="flex flex-wrap gap-2">
@@ -317,11 +345,24 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                           key={i}
                           className="bg-secondary text-secondary-foreground px-4 py-2 rounded-full flex items-center gap-2 text-lg font-medium border-2"
                         >
-                          {tech}
+                          <Input
+                            value={tech}
+                            onChange={(e) => {
+                              const updated = [...formData.techStack];
+                              updated[i] = e.target.value;
+                              setFormData({ ...formData, techStack: updated });
+                            }}
+                            className="h-8 text-base rounded-full bg-transparent border-0 px-2"
+                          />
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 rounded-full p-0"
+                            onClick={() => {
+                              const updated = [...formData.techStack];
+                              updated.splice(i, 1);
+                              setFormData({ ...formData, techStack: updated });
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -330,6 +371,12 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                       <Button
                         variant="outline"
                         className="rounded-full h-11 px-4 border-2 border-dashed bg-transparent"
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            techStack: [...formData.techStack, ""],
+                          })
+                        }
                       >
                         <Plus className="mr-2 h-5 w-5" /> Add Tech
                       </Button>
@@ -381,12 +428,22 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                         <div key={i} className="flex gap-2">
                           <Input
                             value={member}
+                            onChange={(e) => {
+                              const updated = [...formData.team];
+                              updated[i] = e.target.value;
+                              setFormData({ ...formData, team: updated });
+                            }}
                             className="h-12 text-lg rounded-xl"
                           />
                           <Button
                             variant="destructive"
                             size="icon"
                             className="h-12 w-12 rounded-xl"
+                            onClick={() => {
+                              const updated = [...formData.team];
+                              updated.splice(i, 1);
+                              setFormData({ ...formData, team: updated });
+                            }}
                           >
                             <Trash2 className="h-6 w-6" />
                           </Button>
@@ -395,6 +452,9 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
                       <Button
                         variant="outline"
                         className="w-full h-12 rounded-xl border-2 border-dashed bg-transparent"
+                        onClick={() =>
+                          setFormData({ ...formData, team: [...formData.team, ""] })
+                        }
                       >
                         <Plus className="mr-2 h-5 w-5" /> Add Member
                       </Button>

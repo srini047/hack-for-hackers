@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     # API Keys
     google_gemini_api_key: str
     elevenlabs_api_key: str
+    cohere_api_key: str
 
     # Application Settings
     max_file_size_mb: int = 100

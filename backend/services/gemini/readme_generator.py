@@ -1,6 +1,6 @@
 """README.md generation using Gemini (synchronous)."""
 from typing import Dict, Any, List
-from .client import GeminiClient
+from services.gemini.client import GeminiClient
 
 
 class ReadmeGenerator:

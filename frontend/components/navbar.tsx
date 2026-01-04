@@ -113,9 +113,9 @@ export function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Button size="lg" className="hidden sm:flex rounded-full px-8 font-bold text-lg h-12">
+          {/* <Button size="lg" className="hidden sm:flex rounded-full px-8 font-bold text-lg h-12">
             Sign In
-          </Button>
+          </Button> */}
 
           <Button
             variant="ghost"
@@ -145,9 +145,9 @@ export function Navbar() {
               <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
-          <Button size="lg" className="w-full rounded-xl py-8 h-auto font-bold text-xl mt-4">
+          {/* <Button size="lg" className="w-full rounded-xl py-8 h-auto font-bold text-xl mt-4">
             Sign In
-          </Button>
+          </Button> */}
         </div>
       )}
     </nav>

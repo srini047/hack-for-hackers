@@ -22,7 +22,7 @@ class GeminiClient:
             cls._instance._client = genai.Client(api_key=api_key) if api_key else genai.Client()
         return cls._instance
 
-    def __init__(self, api_key=None, model="gemini-2.5-flash"):
+    def __init__(self, api_key=None, model="gemini-2.5-flash-lite"):
         # Model can still be updated per call/re-instantiation
         self.model = model
 

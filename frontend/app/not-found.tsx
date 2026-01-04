@@ -1,45 +1,51 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Home, FileQuestion, Search, Upload, AlertTriangle } from "lucide-react"
-import { speak } from "@/lib/audio-service"
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Home,
+  FileQuestion,
+  Search,
+  Upload,
+  AlertTriangle,
+} from "lucide-react";
+import { speak } from "@/lib/audio-service";
 
 export default function NotFound() {
-  const router = useRouter()
-  const [countdown, setCountdown] = React.useState(10)
-  const [isListening, setIsListening] = React.useState(false)
+  const router = useRouter();
+  const [countdown, setCountdown] = React.useState(10);
+  const [isListening, setIsListening] = React.useState(false);
 
   React.useEffect(() => {
     // Announce the error immediately on mount
     const initialMessage =
-      "Invalid route. Page not found. Are you looking for Home, Submit, or Help pages? You will be redirected to the home page in 10 seconds."
-    speak(initialMessage)
+      "Invalid route. Page not found. Are you looking for Home, Submit, or Help pages? You will be redirected to the home page in 10 seconds.";
+    speak(initialMessage);
 
     // Start countdown timer
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(timer)
-          speak("Redirecting you to the home page now.")
+          clearInterval(timer);
+          speak("Redirecting you to the home page now.");
           setTimeout(() => {
-            router.push("/")
-          }, 1000)
-          return 0
+            router.push("/");
+          }, 1000);
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [router])
+    return () => clearInterval(timer);
+  }, [router]);
 
   const handleNavigation = (path: string, label: string) => {
-    speak(`Navigating to ${label}`)
-    router.push(path)
-  }
+    speak(`Navigating to ${label}`);
+    router.push(path);
+  };
 
   return (
     <div className="container flex items-center justify-center min-h-[80vh] px-4 py-12">
@@ -50,7 +56,9 @@ export default function NotFound() {
               <AlertTriangle className="h-12 w-12 text-destructive" />
             </div>
           </div>
-          <CardTitle className="text-5xl md:text-7xl font-black tracking-tight">404</CardTitle>
+          <CardTitle className="text-5xl md:text-7xl font-black tracking-tight">
+            404
+          </CardTitle>
           <div className="space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold">Page Not Found</h1>
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
@@ -66,7 +74,8 @@ export default function NotFound() {
               <p className="text-2xl font-bold">Redirecting in {countdown}s</p>
             </div>
             <p className="text-lg text-muted-foreground">
-              You will be automatically redirected to the home page, or choose a page below:
+              You will be automatically redirected to the home page, or choose a
+              page below:
             </p>
           </div>
 
@@ -111,5 +120,5 @@ export default function NotFound() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
