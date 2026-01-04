@@ -1,15 +1,26 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Video, Save, Check, Plus, Trash2, Send, Cpu, MessageCircle } from "lucide-react"
-import { speak, getOppositeGenderVoice } from "@/lib/audio-service"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Video,
+  Save,
+  Check,
+  Plus,
+  Trash2,
+  Send,
+  Cpu,
+  MessageCircle,
+  Copy,
+  CopyCheck,
+} from "lucide-react";
+import { speak, getOppositeGenderVoice } from "@/lib/audio-service";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -17,63 +28,126 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 interface ReviewStepProps {
-  videoUrl: string
+  videoUrl: string;
+  initialData?: {
+    job_id: string;
+    title: string;
+    tagline: string;
+    problem_statement: string;
+    solution: string;
+    tech_stack: string[];
+    transcript: string;
+    features: string[];
+  };
 }
 
-export function ReviewStep({ videoUrl }: ReviewStepProps) {
+export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
   const [formData, setFormData] = React.useState({
-    title: "EcoTrack: Community Waste Management",
-    tagline: "Cleaning our world, one neighbor at a time.",
+    title: initialData?.title || "EcoTrack: Community Waste Management",
+    tagline: initialData?.tagline || "An accessible demo project",
     problem:
+      initialData?.problem_statement ||
       "Community members struggle to coordinate local cleanup efforts and track impact in real-time. Existing tools are too complex or not accessible enough for everyone to join.",
     solution:
+      initialData?.solution ||
       "EcoTrack provides a voice-controlled interface for reporting waste and organizing cleanup events. It uses real-time mapping to show immediate community impact.",
-    techStack: ["Next.js", "Tailwind CSS", "Supabase", "OpenAI API"],
-    team: ["Alex Rivera", "Jamie Chen"],
-    futureScope: "Integration with local municipality systems for official waste pickup scheduling.",
-  })
+    techStack: initialData?.tech_stack || [
+      "Next.js",
+      "Elevenlabs",
+      "MongoDB",
+      "Google Gemini",
+    ],
+    team: ["Sriniketh", "AI Companion"],
+    futureScope:
+      "Integration with local municipality systems for official waste pickup scheduling.",
+  });
 
-  const [isSaved, setIsSaved] = React.useState(false)
-  const [showFeedbackPrompt, setShowFeedbackPrompt] = React.useState(false)
-  const [userGender, setUserGender] = React.useState<"male" | "female">("male")
-  const router = useRouter()
+  const [isSaved, setIsSaved] = React.useState(false);
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = React.useState(false);
+  const [userGender, setUserGender] = React.useState<"male" | "female">("male");
+  const router = useRouter();
+  const [isCopied, setIsCopied] = React.useState(false);
 
   React.useEffect(() => {
-    const stored = localStorage.getItem("user-gender")
+    const stored = localStorage.getItem("user-gender");
     if (stored === "male" || stored === "female") {
-      setUserGender(stored as "male" | "female")
+      setUserGender(stored as "male" | "female");
     }
 
     const feedbackTimer = setTimeout(() => {
-      setShowFeedbackPrompt(true)
-      const assistantVoice = getOppositeGenderVoice(userGender)
+      setShowFeedbackPrompt(true);
+      const assistantVoice = getOppositeGenderVoice(userGender);
       speak(
         "Your submission is ready! Would you like to share your experience with AccessSubmit? Your feedback helps us improve accessibility for everyone.",
         assistantVoice
-      )
-    }, 30000) // 30 seconds
+      );
+    }, 30000); // 30 seconds
 
-    return () => clearTimeout(feedbackTimer)
-  }, [userGender])
+    return () => clearTimeout(feedbackTimer);
+  }, [userGender]);
 
   const handleSave = () => {
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 2000)
-  }
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
 
   const handleFeedbackYes = () => {
-    setShowFeedbackPrompt(false)
-    router.push("/feedback")
-  }
+    setShowFeedbackPrompt(false);
+    router.push("/feedback");
+  };
 
   const handleFeedbackLater = () => {
-    setShowFeedbackPrompt(false)
-    const assistantVoice = getOppositeGenderVoice(userGender)
-    speak("No problem! You can share feedback anytime from the help page.", assistantVoice)
-  }
+    setShowFeedbackPrompt(false);
+    const assistantVoice = getOppositeGenderVoice(userGender);
+    speak(
+      "No problem! You can share feedback anytime from the help page.",
+      assistantVoice
+    );
+  };
+
+  const handleCopy = async () => {
+    const payload = {
+      videoUrl,
+      submission: {
+        title: formData.title,
+        tagline: formData.tagline,
+        problem_statement: formData.problem,
+        solution: formData.solution,
+        tech_stack: formData.techStack,
+        team: formData.team,
+        future_scope: formData.futureScope,
+      },
+      initialData: {
+        job_id: initialData?.job_id,
+        transcript: initialData?.transcript,
+        features: initialData?.features,
+      },
+      copiedAt: new Date().toUTCString(),
+    };
+
+    const json = JSON.stringify(payload, null, 2);
+
+    try {
+      await navigator.clipboard.writeText(json);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      const ta = document.createElement("textarea");
+      ta.value = json;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  };
 
   return (
     <>
@@ -85,8 +159,8 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
               Share Your Experience?
             </DialogTitle>
             <DialogDescription className="text-lg leading-relaxed pt-2">
-              Help us improve AccessSubmit by sharing your feedback. Your insights make the platform better for
-              everyone.
+              Help us improve AccessSubmit by sharing your feedback. Your
+              insights make the platform better for everyone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -94,7 +168,7 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
               variant="outline"
               size="lg"
               onClick={handleFeedbackLater}
-              className="flex-1 h-14 text-lg font-semibold rounded-xl"
+              className="flex-1 h-14 text-lg font-semibold rounded-xl bg-transparent"
             >
               Maybe Later
             </Button>
@@ -114,7 +188,11 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
         {/* Video Side */}
         <div className="flex flex-col gap-4">
           <Card className="flex-1 rounded-[32px] overflow-hidden border-2 bg-black relative aspect-video lg:aspect-auto">
-            <video src={videoUrl} controls className="w-full h-full object-contain" />
+            <video
+              src={videoUrl}
+              controls
+              className="w-full h-full object-contain"
+            />
             <div className="absolute top-4 left-4">
               <div className="bg-primary/90 text-primary-foreground px-4 py-1.5 rounded-full flex items-center gap-2 font-bold shadow-lg">
                 <Video className="h-5 w-5" /> Reference Video
@@ -128,8 +206,8 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
               </CardTitle>
             </CardHeader>
             <p className="text-lg italic text-muted-foreground leading-relaxed">
-              "We wanted to make a project that focuses on community engagement... the map updates instantly when a new
-              report is filed..."
+              {initialData?.transcript?.substring(0, 150) ||
+                "Hello, this is one of the challenges of local hack day, build day one. So I've actually been to time of fact, so without direct"}
             </p>
           </Card>
         </div>
@@ -137,15 +215,41 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
         {/* Editor Side */}
         <Card className="flex flex-col rounded-[32px] border-2 shadow-xl overflow-hidden">
           <CardHeader className="border-b-2 p-6 flex flex-row items-center justify-between">
-            <CardTitle className="text-3xl font-black">Edit Submission</CardTitle>
+            <CardTitle className="text-3xl font-black">
+              Edit Submission
+            </CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="lg" className="rounded-full h-12 bg-transparent" onClick={handleSave}>
-                {isSaved ? <Check className="mr-2 h-5 w-5" /> : <Save className="mr-2 h-5 w-5" />}
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full h-12 bg-transparent"
+                onClick={handleSave}
+              >
+                {isSaved ? (
+                  <Check className="mr-2 h-5 w-5" />
+                ) : (
+                  <Save className="mr-2 h-5 w-5" />
+                )}
                 {isSaved ? "Saved" : "Save Progress"}
               </Button>
-              <Button size="lg" className="rounded-full h-12 px-8 font-bold">
-                Submit <Send className="ml-2 h-5 w-5" />
-              </Button>
+
+                      {/* Copy Content as JSON */}
+                      <Button
+                        size="lg"
+                        onClick={handleCopy}
+                        className="rounded-full h-12 px-8 font-bold"
+                      >
+                        {isCopied ? (
+                          <>
+                            <CopyCheck className="mr-2 h-5 w-5" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            Copy <Copy className="ml-2 h-5 w-5" />
+                          </>
+                        )}
+                      </Button>
             </div>
           </CardHeader>
 
@@ -158,16 +262,25 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                 >
                   Project Details
                 </TabsTrigger>
-                <TabsTrigger value="readme" className="flex-1 text-lg font-bold rounded-xl data-[state=active]:shadow-md">
+                <TabsTrigger
+                  value="readme"
+                  className="flex-1 text-lg font-bold rounded-xl data-[state=active]:shadow-md"
+                >
                   README / Description
                 </TabsTrigger>
-                <TabsTrigger value="team" className="flex-1 text-lg font-bold rounded-xl data-[state=active]:shadow-md">
+                <TabsTrigger
+                  value="team"
+                  className="flex-1 text-lg font-bold rounded-xl data-[state=active]:shadow-md"
+                >
                   Team & Links
                 </TabsTrigger>
               </TabsList>
 
               <div className="p-8 space-y-8">
-                <TabsContent value="details" className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4">
+                <TabsContent
+                  value="details"
+                  className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4"
+                >
                   <div className="space-y-4">
                     <Label htmlFor="title" className="text-xl font-bold">
                       Project Title
@@ -175,7 +288,9 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                     <Input
                       id="title"
                       value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
                       className="h-14 text-xl rounded-xl border-2 focus:ring-4 transition-all"
                     />
                   </div>
@@ -187,7 +302,9 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                     <Input
                       id="tagline"
                       value={formData.tagline}
-                      onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tagline: e.target.value })
+                      }
                       className="h-14 text-xl rounded-xl border-2 focus:ring-4 transition-all"
                     />
                   </div>
@@ -201,19 +318,29 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                           className="bg-secondary text-secondary-foreground px-4 py-2 rounded-full flex items-center gap-2 text-lg font-medium border-2"
                         >
                           {tech}
-                          <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full p-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 rounded-full p-0"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
-                      <Button variant="outline" className="rounded-full h-11 px-4 border-2 border-dashed bg-transparent">
+                      <Button
+                        variant="outline"
+                        className="rounded-full h-11 px-4 border-2 border-dashed bg-transparent"
+                      >
                         <Plus className="mr-2 h-5 w-5" /> Add Tech
                       </Button>
                     </div>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="readme" className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4">
+                <TabsContent
+                  value="readme"
+                  className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4"
+                >
                   <div className="space-y-4">
                     <Label htmlFor="problem" className="text-xl font-bold">
                       Problem Statement
@@ -221,7 +348,9 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                     <Textarea
                       id="problem"
                       value={formData.problem}
-                      onChange={(e) => setFormData({ ...formData, problem: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, problem: e.target.value })
+                      }
                       className="min-h-[150px] text-xl rounded-2xl border-2 leading-relaxed"
                     />
                   </div>
@@ -233,25 +362,40 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                     <Textarea
                       id="solution"
                       value={formData.solution}
-                      onChange={(e) => setFormData({ ...formData, solution: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, solution: e.target.value })
+                      }
                       className="min-h-[150px] text-xl rounded-2xl border-2 leading-relaxed"
                     />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="team" className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4">
+                <TabsContent
+                  value="team"
+                  className="mt-0 space-y-8 animate-in fade-in slide-in-from-right-4"
+                >
                   <div className="space-y-4">
                     <Label className="text-xl font-bold">Team Members</Label>
                     <div className="space-y-3">
                       {formData.team.map((member, i) => (
                         <div key={i} className="flex gap-2">
-                          <Input value={member} className="h-12 text-lg rounded-xl" />
-                          <Button variant="destructive" size="icon" className="h-12 w-12 rounded-xl">
+                          <Input
+                            value={member}
+                            className="h-12 text-lg rounded-xl"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="h-12 w-12 rounded-xl"
+                          >
                             <Trash2 className="h-6 w-6" />
                           </Button>
                         </div>
                       ))}
-                      <Button variant="outline" className="w-full h-12 rounded-xl border-2 border-dashed bg-transparent">
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 rounded-xl border-2 border-dashed bg-transparent"
+                      >
                         <Plus className="mr-2 h-5 w-5" /> Add Member
                       </Button>
                     </div>
@@ -264,7 +408,12 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
                     <Textarea
                       id="future"
                       value={formData.futureScope}
-                      onChange={(e) => setFormData({ ...formData, futureScope: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          futureScope: e.target.value,
+                        })
+                      }
                       className="min-h-[100px] text-xl rounded-2xl border-2 leading-relaxed"
                     />
                   </div>
@@ -275,5 +424,5 @@ export function ReviewStep({ videoUrl }: ReviewStepProps) {
         </Card>
       </div>
     </>
-  )
+  );
 }

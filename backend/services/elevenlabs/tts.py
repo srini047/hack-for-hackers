@@ -38,7 +38,7 @@ class TextToSpeech:
             audio_generator = eleven_client.text_to_speech.convert(
                 text=description_text,
                 voice_id=voice_id,
-                model="eleven_multilingual_v2"
+                model_id="eleven_multilingual_v2"
             )
             
             # Collect audio chunks

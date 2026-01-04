@@ -1,55 +1,116 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Progress } from "@/components/ui/progress"
-import { Card, CardContent } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
+import * as React from "react";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ProcessingStepProps {
-  onComplete: () => void
+  videoFile: File | null;
+  onComplete: (data: any) => void;
+  onError: (error: string) => void;
 }
 
-export function ProcessingStep({ onComplete }: ProcessingStepProps) {
-  const [progress, setProgress] = React.useState(0)
-  const [status, setStatus] = React.useState("Uploading video...")
+interface ProjectData {
+  job_id: string;
+  title: string;
+  tagline: string;
+  problem_statement: string;
+  solution: string;
+  tech_stack: string[];
+  transcript: string;
+  features: string[];
+}
+
+export function ProcessingStep({
+  videoFile,
+  onComplete,
+  onError,
+}: ProcessingStepProps) {
+  const [progress, setProgress] = React.useState(0);
+  const [status, setStatus] = React.useState("Uploading video...");
+  const [insights, setInsights] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    const statuses = [
-      { p: 25, s: "Analyzing video content..." },
-      { p: 50, s: "Extracting project features..." },
-      { p: 75, s: "Generating submission details..." },
-      { p: 90, s: "Finalizing your draft..." },
-      { p: 100, s: "Complete!" },
-    ]
+    if (!videoFile) {
+      onError("No video file provided");
+      return;
+    }
 
-    const currentIdx = 0
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setTimeout(onComplete, 1000)
-          return 100
+    const uploadVideo = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("video", videoFile);
+
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+        setProgress(25);
+        setStatus("Uploading video...");
+
+        const response = await fetch(`${baseUrl}/api/project/create`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          setStatus(`Upload failed: ${response.statusText}`);
+          throw new Error(`Upload failed: ${response.statusText}`);
         }
 
-        const nextProgress = prev + Math.random() * 5
-        const nextStatus = statuses.find((s) => nextProgress >= s.p && prev < s.p)
-        if (nextStatus) {
-          setStatus(nextStatus.s)
-        }
+        setProgress(50);
+        setStatus("Analyzing video content...");
+        setInsights((prev) => [...prev, "✅ Video uploaded successfully"]);
 
-        return nextProgress
-      })
-    }, 200)
+        const projectData: ProjectData = await response.json();
 
-    return () => clearInterval(interval)
-  }, [onComplete])
+        setProgress(75);
+        setStatus("Extracting project features...");
+        setInsights((prev) => [
+          ...prev,
+          `✅ Detected ${
+            projectData.features?.length || 0
+          } features in the project`,
+        ]);
+
+        setProgress(90);
+        setStatus("Generating submission details...");
+        setInsights((prev) => [
+          ...prev,
+          `✅ Identified Tech Stack: ${
+            projectData.tech_stack?.join(", ") || "N/A"
+          }`,
+        ]);
+
+        setProgress(100);
+        setStatus("Complete!");
+        setInsights((prev) => [
+          ...prev,
+          "✅ Generated submission details from video",
+        ]);
+
+        // Delay before moving to review step
+        setTimeout(() => {
+          onComplete(projectData);
+        }, 1000);
+      } catch (err) {
+        console.error("[v0] Processing error:", err);
+        onError(err instanceof Error ? err.message : "Failed to process video");
+      }
+    };
+
+    uploadVideo();
+  }, [videoFile, onComplete, onError]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-12 py-20 text-center animate-in fade-in slide-in-from-bottom-8">
       <div className="space-y-4">
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight">Processing Video</h1>
+        <h1 className="text-4xl md:text-6xl font-black tracking-tight">
+          Processing Video
+        </h1>
         <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-          Sit back while our AI analyzes your demonstration and prepares your submission.
+          Sit back while our AI analyzes your demonstration and prepares your
+          submission.
         </p>
       </div>
 
@@ -65,25 +126,22 @@ export function ProcessingStep({ onComplete }: ProcessingStepProps) {
           <Progress value={progress} className="h-6 rounded-full" />
 
           <div className="bg-secondary/30 p-8 rounded-3xl text-left space-y-4">
-            <h3 className="text-xl font-bold border-b pb-2">AI Insights Found:</h3>
+            <h3 className="text-xl font-bold border-b pb-2">
+              AI Insights Found:
+            </h3>
             <ul className="space-y-3 text-lg">
-              <li className={cn("transition-opacity", progress > 30 ? "opacity-100" : "opacity-0")}>
-                ✅ Detected 3 unique features in the UI
-              </li>
-              <li className={cn("transition-opacity", progress > 60 ? "opacity-100" : "opacity-0")}>
-                ✅ Identified Tech Stack: React, Tailwind, and Supabase
-              </li>
-              <li className={cn("transition-opacity", progress > 85 ? "opacity-100" : "opacity-0")}>
-                ✅ Generated Problem Statement from audio cues
-              </li>
+              {insights.map((insight, idx) => (
+                <li
+                  key={idx}
+                  className="animate-in fade-in slide-in-from-left-4"
+                >
+                  {insight}
+                </li>
+              ))}
             </ul>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
-}
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(" ")
+  );
 }
