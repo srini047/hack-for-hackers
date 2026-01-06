@@ -83,7 +83,7 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
       setShowFeedbackPrompt(true);
       const assistantVoice = getOppositeGenderVoice(userGender);
       speak(
-        "Your submission is ready! Would you like to share your experience with AccessSubmit? Your feedback helps us improve accessibility for everyone.",
+        "Your submission is ready! Would you like to share your experience with Access Submit? Your feedback helps us improve accessibility for everyone.",
         assistantVoice
       );
     }, 30000); // 30 seconds
@@ -162,7 +162,7 @@ export function ReviewStep({ videoUrl, initialData }: ReviewStepProps) {
               Share Your Experience?
             </DialogTitle>
             <DialogDescription className="text-lg leading-relaxed pt-2">
-              Help us improve AccessSubmit by sharing your feedback. Your
+              Help us improve Access Submit by sharing your feedback. Your
               insights make the platform better for everyone.
             </DialogDescription>
           </DialogHeader>

@@ -327,12 +327,12 @@ The backend exposes REST endpoints. You can view full interactive docs at `/docs
 
 Refer to the route implementations in `backend/api/routes/` for details.
 
-## Troubleshooting
+## Challenges ran into
 
-- Common errors:
-	- `Quota exceeded` from LLM/TTS providers — check billing and usage limits for Gemini/Cohere/ElevenLabs.
-	- MongoDB connection failures — verify `mongodb_uri` and network access (Atlas IP whitelist/VPC).
-	- Large uploads failing — ensure `max_file_size_mb` is configured and reverse-proxy limits (nginx) accept large bodies.
+- `Quota exceeded` from LLM/TTS providers — check billing and usage limits for Gemini/Cohere/ElevenLabs.
+- MongoDB connection failures — verify `mongodb_uri` and network access (Atlas IP whitelist/VPC).
+- Large uploads failing — ensure `max_file_size_mb` is configured and reverse-proxy limits (nginx) accept large bodies.
+- Failed to deploy with Vultr, have lost of constraints with respect to Credits/Credit card usage.
 
 ## License
 MIT

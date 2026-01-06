@@ -9,7 +9,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Accessibility className="h-6 w-6 text-primary" />
-              <span className="text-xl font-black tracking-tighter">AccessSubmit</span>
+              <span className="text-xl font-black tracking-tighter">Access Submit</span>
             </div>
             <p className="text-muted-foreground text-lg leading-relaxed">
               Empowering every creator, regardless of ability, to share their vision with the world through accessible
@@ -44,7 +44,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t text-center text-muted-foreground text-lg">
-          <p>© 2026 AccessSubmit. Built for accessibility first.</p>
+          <p>© 2026 Access Submit. Built for accessibility first.</p>
         </div>
       </div>
     </footer>

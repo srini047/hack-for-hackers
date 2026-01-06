@@ -156,7 +156,7 @@ export default function FeedbackPage() {
     const assistantVoice = getOppositeGenderVoice(userGender);
 
     speak(
-      "Submitting your feedback. Thank you for helping us improve AccessSubmit.",
+      "Submitting your feedback. Thank you for helping us improve Access Submit.",
       assistantVoice
     );
 
@@ -236,7 +236,7 @@ export default function FeedbackPage() {
       <div className="space-y-6 mb-12">
         <h1 className="text-4xl md:text-6xl font-black">Share Your Feedback</h1>
         <p className="text-xl text-muted-foreground leading-relaxed">
-          Your experience matters. Help us improve AccessSubmit by sharing your
+          Your experience matters. Help us improve Access Submit by sharing your
           thoughts via audio recording or the form below.
         </p>
       </div>
@@ -369,7 +369,7 @@ export default function FeedbackPage() {
                 </Label>
                 <Textarea
                   id="feedback"
-                  placeholder="Share your experience with AccessSubmit. What worked well? What could be improved?"
+                  placeholder="Share your experience with Access Submit. What worked well? What could be improved?"
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   onFocus={handleFormFocus}

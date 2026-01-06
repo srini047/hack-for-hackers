@@ -95,7 +95,7 @@ export function Assistant() {
         setMessages((prev) => [...prev, { role: "user", content: transcript }])
 
         // Mock AI response
-        const response = `I heard you say: ${transcript}. I'm processing your request to help you navigate AccessSubmit.`
+        const response = `I heard you say: ${transcript}. I'm processing your request to help you navigate Access Submit.`
         setMessages((prev) => [...prev, { role: "assistant", content: response }])
 
         // Speak response with opposite gender voice
@@ -202,7 +202,7 @@ export function Assistant() {
 
     // Mock response
     setTimeout(async () => {
-      const response = `I've received your request: "${userInput}". I'm processing it now to help you navigate AccessSubmit.`
+      const response = `I've received your request: "${userInput}". I'm processing it now to help you navigate Access Submit.`
       setMessages((prev) => [
         ...prev,
         {

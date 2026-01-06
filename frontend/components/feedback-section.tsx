@@ -233,7 +233,7 @@ export function FeedbackSection() {
                 </Label>
                 <Textarea
                   id="feedback"
-                  placeholder="Share your experience with AccessSubmit. What worked well? What could be improved?"
+                  placeholder="Share your experience with Access Submit. What worked well? What could be improved?"
                   value={textFeedback}
                   onChange={(e) => setTextFeedback(e.target.value)}
                   className="min-h-[200px] text-lg p-4 resize-none dyslexic-spacing"

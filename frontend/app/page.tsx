@@ -70,7 +70,7 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 md:gap-3 pt-6 md:pt-8">
-            {["Next.js ⏭️", "ElevenLabs 🕚", "Google Gemini 🌐", "MongoDB 🥭"].map(
+            {["Next.js ⏭️", "ElevenLabs 🕚", "Google Gemini 🌐", "MongoDB 🥭", "FastAPI 🍀"].map(
               (tech) => (
                 <div
                   key={tech}
@@ -181,7 +181,7 @@ export default function LandingPage() {
               See It In Action
             </h2>
             <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Watch how AccessSubmit transforms a demo video into a complete
+              Watch how Access Submit transforms a demo video into a complete
               hackathon submission in under 2 minutes.
             </p>
           </div>
@@ -193,10 +193,10 @@ export default function LandingPage() {
                   <iframe
                     className="w-full h-full"
                     src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                    title="AccessSubmit Demo Video"
+                    title="Access Submit Demo Video"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    aria-label="Demo video showing AccessSubmit features and workflow"
+                    aria-label="Demo video showing Access Submit features and workflow"
                   />
                 </div>
               </CardContent>

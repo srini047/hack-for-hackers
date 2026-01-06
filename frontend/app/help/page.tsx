@@ -116,7 +116,7 @@ export default function HelpPage() {
           Help & Accessibility Guide
         </h1>
         <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
-          New to AccessSubmit? Learn how to navigate using voice, keyboard, or
+          New to Access Submit? Learn how to navigate using voice, keyboard, or
           screen readers.
         </p>
       </div>

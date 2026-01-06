@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AccessSubmit - Hackathon Video Submissions",
+  title: "Access Submit - AI supported hackathon project submission pipeline",
   description:
     "An accessible platform for disabled creators to submit hackathon projects via video.",
 };

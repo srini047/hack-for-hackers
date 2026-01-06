@@ -38,9 +38,9 @@ export function Navbar() {
     >
       <div className="container flex h-20 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center space-x-2" aria-label="AccessSubmit Home">
+          <Link href="/" className="flex items-center space-x-2" aria-label="Access Submit Home">
             <Accessibility className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-black tracking-tighter">AccessSubmit</span>
+            <span className="text-2xl font-black tracking-tighter">Access Submit</span>
           </Link>
           <div className="hidden md:flex gap-1">
             {navLinks.map((link) => (
