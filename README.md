@@ -2,7 +2,8 @@
 
 An AI-powered video-to-submission pipeline built with **universal accessibility at its core**. AccessSubmit transforms your demo video into a complete hackathon submission with comprehensive documentation—all designed for people with disabilities.
 
---
+<img width="1800" height="1081" alt="Landing page" src="https://github.com/user-attachments/assets/5a827f58-210d-48c4-9539-95a8c0097ed9" />
+
 
 ## 📽️ Project Overview
 
